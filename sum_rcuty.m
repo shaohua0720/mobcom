@@ -11,6 +11,7 @@ Rk=uplinkrts(Wmrc',H_off,pu,omega);
 time=zeros(1,s);
 for i=1:s
     time(i)=eta*mt(index(i)).rpower*alpha/pu;
+    time(i)=min(time(i),1-alpha); % cut-off time of the remote computing.
 end
 
 rs=time(:).*Rk(:);

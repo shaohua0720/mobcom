@@ -10,8 +10,8 @@ a=2.5; % pathloss coefficient
 isPlot=1;
 pu=5e-2; % transmit power of MTs.
 omega=1e6; % bandwidth
-%tau=1.8*(3.5e-5)*(1e-6); % 100uA/MHz*1.8v*10^(-6) W/Hz
-tau=1e-9;
+% tau=1.8*(3.5e-5)*(1e-6); % 100uA/MHz*1.8v*10^(-6) W/Hz
+tau=1e-12;
 b=5e10; % 5MBit
 d=5e4; % cycles
 eta=0.8; % efficiency
@@ -80,9 +80,12 @@ Rk=uplinkrts(W,H_off,pu,omega);
 %end
 
 %% optimal alpha search
-alphas=0.5:0.01:1;
+alphas=0.8:0.01:1;
 [~,l]=size(alphas);
 maxv=zeros(1,l);
+local=zeros(1,l);
+remote=zeros(1,l);
+m_alpha=0; %maximum alpha factor
 for tt=1:l
 %     alpha=0.5; 
     alpha=alphas(tt);
@@ -98,13 +101,13 @@ for tt=1:l
         uty22=sum_rcuty(sk,MT,eta,alpha,pu,omega,H,M,Nt);
         utytt=uty11+uty22;
         if(utytt>maxtt) % here to merge
-            maxtt=utytt;
+            maxtt=utytt; m_alpha=tt;
             for j=1:i
                 sk(j)=1-sk(j);
                 uty33=sum_lcuty(sk,MT,eta,alpha,tau,d);
                 uty44=sum_rcuty(sk,MT,eta,alpha,pu,omega,H,M,Nt);
                 if (uty33+uty44>utytt) %split
-                    maxtt=uty33+uty44;
+                    maxtt=uty33+uty44; m_alpha=tt;
                     continue
                 else
                     sk(j)=1-sk(j);
@@ -116,7 +119,12 @@ for tt=1:l
     end
    maxv(tt)=maxtt; % print the max value
    value=maxtt;
-    TT=sum(sk)
-    maxtt
+   local(tt)=sum_lcuty(sk,MT,eta,alpha,tau,d)
+   remote(tt)=sum_rcuty(sk,MT,eta,alpha,pu,omega,H,M,Nt)
+   TT=sum(sk)
+   maxtt
 end
-figure,plot(alphas,maxv);
+figure,plot(alphas,maxv),xlabel('alpha'),ylabel('system overhead');
+hold on,plot(alphas,local),xlabel('alpha'),ylabel('local overhead');
+hold on,plot(alphas,remote),ylabel('alpha'),ylabel('remote overhead');
+legend('system','local','remote')
