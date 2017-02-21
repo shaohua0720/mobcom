@@ -10,8 +10,8 @@ a=2.5; % pathloss coefficient
 isPlot=1;
 pu=5e-2; % transmit power of MTs.
 omega=1e6; % bandwidth
-% tau=1.8*(3.5e-5)*(1e-6); % 100uA/MHz*1.8v*10^(-6) W/Hz
-tau=1e-12;
+tau=1.8*(3.5e-6)*(1e-6); % 100uA/MHz*1.8v*10^(-6) W/Hz
+% tau=5e-12;
 b=5e10; % 5MBit
 d=5e4; % cycles
 eta=0.8; % efficiency
@@ -101,7 +101,7 @@ for tt=1:l
         uty22=sum_rcuty(sk,MT,eta,alpha,pu,omega,H,M,Nt);
         utytt=uty11+uty22;
         if(utytt>maxtt) % here to merge
-            maxtt=utytt; m_alpha=tt;
+            maxtt=utytt; %m_alpha=tt;
             for j=1:i
                 sk(j)=1-sk(j);
                 uty33=sum_lcuty(sk,MT,eta,alpha,tau,d);
@@ -128,3 +128,5 @@ figure,plot(alphas,maxv),xlabel('alpha'),ylabel('system overhead');
 hold on,plot(alphas,local),xlabel('alpha'),ylabel('local overhead');
 hold on,plot(alphas,remote),ylabel('alpha'),ylabel('remote overhead');
 legend('system','local','remote')
+x_ins=(find(max(maxv)==maxv)); alphas(x_ins)
+scatter(alphas(x_ins),maxv(x_ins),'s')
